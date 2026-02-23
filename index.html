@@ -1,128 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" 
-          content="width=device-width, initial-scale=1.0">
-    <title>World Monitor 🌍</title>
+// ================================
+// APP.JS - Main Application Code
+// ================================
 
-    <!-- Map CSS -->
-    <link rel="stylesheet" 
-     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-    <!-- Your CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
+// ================================
+// 1. CLOCK
+// ================================
+function startClock() {
+    function update() {
+        const now = new Date();
+        document.getElementById('clock').textContent =
+            now.toUTCString();
+    }
+    update();
+    setInterval(update, 1000);
+}
 
-<body>
 
-    <!-- HEADER -->
-    <header>
-        <div class="logo">🌍 WorldMonitor</div>
-        <div class="live-badge">● LIVE</div>
-        <div class="clock" id="clock"></div>
-    </header>
+// ================================
+// 2. POPULATION COUNTER
+// ================================
+function startPopulation() {
+    function calculate() {
+        const BASE_POP  = 8045000000;
+        const BASE_TIME = new Date('2024-01-01').getTime();
+        const seconds   = (Date.now() - BASE_TIME) / 1000;
+        const pop       = Math.floor(BASE_POP + seconds * 2.5);
+        
+        document.getElementById('population').textContent =
+            pop.toLocaleString();
+    }
+    calculate();
+    setInterval(calculate, 1000);
+}
 
-    <!-- MAIN -->
-    <main>
 
-        <!-- STAT CARDS -->
-        <section class="cards-grid">
+// ================================
+// 3. MAP SETUP
+// ================================
+let map;
+let currentLayer;
 
-            <div class="card">
-                <div class="card-icon">👥</div>
-                <div class="card-label">World Population</div>
-                <div class="card-value" id="population">
-                    Loading...
-                </div>
-                <div class="card-sub green">
-                    +4.3 births per second
-                </div>
-            </div>
+function initMap() {
 
-            <div class="card">
-                <div class="card-icon">🌡️</div>
-                <div class="card-label">Avg Temperature</div>
-                <div class="card-value">14.9°C</div>
-                <div class="card-sub red">
-                    +1.1°C above baseline
-                </div>
-            </div>
+    // Create map centered on world
+    map = L.map('map', {
+        center: [20, 0],
+        zoom: 2,
+        zoomControl: true
+    });
 
-            <div class="card">
-                <div class="card-icon">💨</div>
-                <div class="card-label">CO₂ Level</div>
-                <div class="card-value">421 ppm</div>
-                <div class="card-sub red">↑ Rising</div>
-            </div>
+    // Dark theme tiles (default)
+    currentLayer = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/' +
+        'dark_all/{z}/{x}/{y}{r}.png',
+        { attribution: '© OpenStreetMap © CARTO' }
+    ).addTo(map);
 
-            <div class="card">
-                <div class="card-icon">⚠️</div>
-                <div class="card-label">Active Alerts</div>
-                <div class="card-value" id="alerts">47</div>
-                <div class="card-sub yellow">Worldwide</div>
-            </div>
+    // Add event markers
+    addMarkers();
+}
 
-        </section>
-
-        <!-- MAP SECTION -->
-        <section class="map-section">
-            <div class="section-top">
-                <h2>🗺️ Live World Map</h2>
-                <div class="map-btns">
-                    <button class="mbtn active" 
-                            onclick="setDark()">
-                        Dark
-                    </button>
-                    <button class="mbtn" 
-                            onclick="setLight()">
-                        Light
-                    </button>
-                    <button class="mbtn" 
-                            onclick="setSatellite()">
-                        Satellite
-                    </button>
-                </div>
-            </div>
-            <div id="map"></div>
-        </section>
-
-        <!-- CHARTS SECTION -->
-        <section class="charts-grid">
-
-            <div class="chart-card">
-                <h3>📈 Population Growth</h3>
-                <canvas id="chart1"></canvas>
-            </div>
-
-            <div class="chart-card">
-                <h3>🌡️ Temperature Rise</h3>
-                <canvas id="chart2"></canvas>
-            </div>
-
-            <div class="chart-card">
-                <h3>💨 CO₂ Levels</h3>
-                <canvas id="chart3"></canvas>
-            </div>
-
-        </section>
-
-        <!-- NEWS FEED -->
-        <section class="news-section">
-            <h2>📡 Live World Events</h2>
-            <div id="news-feed"></div>
-        </section>
-
-    </main>
-
-    <!-- SCRIPTS -->
-    <script 
-     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-    </script>
-    <script 
-     src="https://cdn.jsdelivr.net/npm/chart.js">
-    </script>
-    <script src="js/app.js"></script>
-
-</body>
-</html>
+// Switch to dark map
+function setDark() {
+    map.removeLayer(currentLayer);
+    currentLayer = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/' +
+        '
