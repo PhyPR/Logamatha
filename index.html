@@ -1,69 +1,495 @@
-// ================================
-// APP.JS - Main Application Code
-// ================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0">
+    <title>World Monitor 🌍</title>
+
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" 
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+        /* ============================
+           ALL CSS INSIDE HTML
+           (Easier - no separate file)
+        ============================ */
+
+        :root {
+            --bg:     #0d1117;
+            --bg2:    #010409;
+            --card:   #161b22;
+            --border: #30363d;
+            --blue:   #58a6ff;
+            --green:  #3fb950;
+            --red:    #f85149;
+            --yellow: #d29922;
+            --text:   #e6edf3;
+            --gray:   #8b949e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--blue);
+            flex: 1;
+        }
+
+        .live-badge {
+            background: var(--red);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1;   }
+            50%       { opacity: 0.4; }
+        }
+
+        .clock {
+            color: var(--gray);
+            font-size: 12px;
+        }
+
+        /* --- MAIN --- */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* --- CARDS --- */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-top: 3px solid var(--blue);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-icon  { font-size: 28px; margin-bottom: 10px; }
+
+        .card-label {
+            color: var(--gray);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--blue);
+            margin-bottom: 6px;
+            min-height: 40px;
+        }
+
+        .card-sub   { font-size: 12px; }
+        .green      { color: var(--green);  }
+        .red        { color: var(--red);    }
+        .yellow     { color: var(--yellow); }
+
+        /* --- MAP --- */
+        .map-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .section-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-top h2 { font-size: 16px; }
+
+        .map-btns { display: flex; gap: 8px; }
+
+        .mbtn {
+            background: var(--bg2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .mbtn:hover,
+        .mbtn.active {
+            background: var(--blue);
+            color: #000;
+            border-color: var(--blue);
+        }
+
+        #map {
+            height: 420px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        /* --- CHARTS --- */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .chart-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .chart-card h3 {
+            color: var(--gray);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        /* --- NEWS --- */
+        .news-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .news-section h2 {
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .news-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .news-item:hover {
+            background: rgba(88,166,255,0.06);
+        }
+
+        .tag {
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            min-width: 90px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .tag-disaster    { background:#f85149; color:white; }
+        .tag-political   { background:#d29922; color:black; }
+        .tag-economic    { background:#3fb950; color:black; }
+        .tag-health      { background:#8957e5; color:white; }
+        .tag-environment { background:#1f6feb; color:white; }
+
+        .news-title {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .news-loc,
+        .news-time {
+            color: var(--gray);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .cards-grid  { grid-template-columns: repeat(2,1fr); }
+            .charts-grid { grid-template-columns: repeat(2,1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .cards-grid  { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            #map         { height: 280px; }
+            .news-loc    { display: none; }
+        }
+
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar       { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg2); }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo">🌍 WorldMonitor</div>
+        <div class="live-badge">● LIVE</div>
+        <div class="clock" id="clock">Loading...</div>
+    </header>
+
+    <main>
+
+        <!-- STAT CARDS -->
+        <section class="cards-grid">
+
+            <div class="card">
+                <div class="card-icon">👥</div>
+                <div class="card-label">World Population</div>
+                <div class="card-value" id="population">
+                    Calculating...
+                </div>
+                <div class="card-sub green">
+                    ▲ +4.3 births per second
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🌡️</div>
+                <div class="card-label">Avg Temperature</div>
+                <div class="card-value" id="temperature">
+                    14.9°C
+                </div>
+                <div class="card-sub red">
+                    ▲ +1.1°C above baseline
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">💨</div>
+                <div class="card-label">CO₂ Level</div>
+                <div class="card-value" id="co2">
+                    421.3 ppm
+                </div>
+                <div class="card-sub red">
+                    ▲ Rising every year
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">⚠️</div>
+                <div class="card-label">Active Alerts</div>
+                <div class="card-value" id="alerts">
+                    0
+                </div>
+                <div class="card-sub yellow">
+                    ● Monitoring worldwide
+                </div>
+            </div>
+
+        </section>
+
+        <!-- MAP -->
+        <section class="map-section">
+            <div class="section-top">
+                <h2>🗺️ Live World Map</h2>
+                <div class="map-btns">
+                    <button class="mbtn active" 
+                            id="btn-dark"
+                            onclick="setDark()">
+                        Dark
+                    </button>
+                    <button class="mbtn" 
+                            id="btn-light"
+                            onclick="setLight()">
+                        Light
+                    </button>
+                    <button class="mbtn" 
+                            id="btn-satellite"
+                            onclick="setSatellite()">
+                        Satellite
+                    </button>
+                </div>
+            </div>
+            <div id="map"></div>
+        </section>
+
+        <!-- CHARTS -->
+        <section class="charts-grid">
+            <div class="chart-card">
+                <h3>📈 Population (Billions)</h3>
+                <canvas id="chart1"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>🌡️ Temperature Anomaly</h3>
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>💨 CO₂ Levels (ppm)</h3>
+                <canvas id="chart3"></canvas>
+            </div>
+        </section>
+
+        <!-- NEWS FEED -->
+        <section class="news-section">
+            <h2>📡 Live World Events</h2>
+            <div id="news-feed">
+                <p style="color:#8b949e; padding:20px; 
+                           text-align:center;">
+                    Loading events...
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SCRIPTS - Load order matters! -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+
+    <script>
+    // ============================================
+    // ALL JAVASCRIPT INSIDE HTML
+    // This avoids file loading issues on GitHub
+    // ============================================
 
 
-// ================================
-// 1. CLOCK
-// ================================
-function startClock() {
-    function update() {
-        const now = new Date();
-        document.getElementById('clock').textContent =
-            now.toUTCString();
+    // ============================================
+    // 1. CLOCK - Updates every second
+    // ============================================
+    function startClock() {
+        function tick() {
+            try {
+                var now = new Date();
+                var options = {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    timeZoneName: 'short'
+                };
+                document.getElementById('clock').textContent =
+                    now.toLocaleString('en-US', options);
+            } catch(e) {
+                console.log('Clock error:', e);
+            }
+        }
+        tick();
+        setInterval(tick, 1000);
     }
-    update();
-    setInterval(update, 1000);
-}
 
 
-// ================================
-// 2. POPULATION COUNTER
-// ================================
-function startPopulation() {
-    function calculate() {
-        const BASE_POP  = 8045000000;
-        const BASE_TIME = new Date('2024-01-01').getTime();
-        const seconds   = (Date.now() - BASE_TIME) / 1000;
-        const pop       = Math.floor(BASE_POP + seconds * 2.5);
-        
-        document.getElementById('population').textContent =
-            pop.toLocaleString();
+    // ============================================
+    // 2. POPULATION - Real-time counter
+    // ============================================
+    function startPopulation() {
+        function calculate() {
+            try {
+                var BASE_POP  = 8045000000;
+                var BASE_TIME = new Date('2024-01-01T00:00:00Z')
+                                    .getTime();
+                var NOW       = Date.now();
+                var SECONDS   = (NOW - BASE_TIME) / 1000;
+                var POP       = Math.floor(BASE_POP + SECONDS * 2.5);
+
+                document.getElementById('population')
+                    .textContent = POP.toLocaleString('en-US');
+            } catch(e) {
+                console.log('Population error:', e);
+                document.getElementById('population')
+                    .textContent = '8,045,000,000+';
+            }
+        }
+        calculate();
+        setInterval(calculate, 1000);
     }
-    calculate();
-    setInterval(calculate, 1000);
-}
 
 
-// ================================
-// 3. MAP SETUP
-// ================================
-let map;
-let currentLayer;
+    // ============================================
+    // 3. ALERTS COUNTER - Counts up slowly
+    // ============================================
+    function startAlerts() {
+        var count = 0;
+        var target = 47;
 
-function initMap() {
+        var timer = setInterval(function() {
+            count++;
+            document.getElementById('alerts')
+                .textContent = count;
+            if (count >= target) {
+                clearInterval(timer);
+            }
+        }, 50);
+    }
 
-    // Create map centered on world
-    map = L.map('map', {
-        center: [20, 0],
-        zoom: 2,
-        zoomControl: true
-    });
 
-    // Dark theme tiles (default)
-    currentLayer = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/' +
-        'dark_all/{z}/{x}/{y}{r}.png',
-        { attribution: '© OpenStreetMap © CARTO' }
-    ).addTo(map);
+    // ============================================
+    // 4. MAP SETUP
+    // ============================================
+    var map;
+    var currentLayer;
 
-    // Add event markers
-    addMarkers();
-}
+    var LAYERS = {
+        dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        light: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+    };
 
-// Switch to dark map
-function setDark() {
-    map.removeLayer(currentLayer);
-    currentLayer = L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/' +
-        '
+    function init
