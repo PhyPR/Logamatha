@@ -1,0 +1,298 @@
+/* ================================
+   ROOT VARIABLES
+================================ */
+:root {
+    --bg:      #0d1117;
+    --bg2:     #010409;
+    --card:    #161b22;
+    --border:  #30363d;
+    --blue:    #58a6ff;
+    --green:   #3fb950;
+    --red:     #f85149;
+    --yellow:  #d29922;
+    --text:    #e6edf3;
+    --gray:    #8b949e;
+}
+
+/* ================================
+   BASE
+================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ================================
+   HEADER
+================================ */
+header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--blue);
+    flex: 1;
+}
+
+.live-badge {
+    background: var(--red);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1;   }
+    50%       { opacity: 0.4; }
+}
+
+.clock {
+    color: var(--gray);
+    font-size: 12px;
+}
+
+/* ================================
+   MAIN LAYOUT
+================================ */
+main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ================================
+   STAT CARDS
+================================ */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s;
+    border-top: 3px solid var(--blue);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(88,166,255,0.15);
+}
+
+.card-icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.card-label {
+    color: var(--gray);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.card-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--blue);
+    margin-bottom: 6px;
+}
+
+.card-sub {
+    font-size: 12px;
+}
+
+.green  { color: var(--green);  }
+.red    { color: var(--red);    }
+.yellow { color: var(--yellow); }
+
+/* ================================
+   MAP
+================================ */
+.map-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.section-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-top h2 {
+    font-size: 16px;
+}
+
+.map-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.mbtn {
+    background: var(--bg2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.mbtn:hover,
+.mbtn.active {
+    background: var(--blue);
+    color: #000;
+    border-color: var(--blue);
+}
+
+#map {
+    height: 420px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+/* ================================
+   CHARTS
+================================ */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.chart-card h3 {
+    color: var(--gray);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+}
+
+/* ================================
+   NEWS FEED
+================================ */
+.news-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.news-section h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+#news-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.news-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.news-item:hover {
+    background: rgba(88,166,255,0.06);
+    border-color: var(--border);
+}
+
+.tag {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    min-width: 85px;
+    text-align: center;
+}
+
+.tag-disaster    { background: var(--red);    color: white; }
+.tag-political   { background: var(--yellow); color: black; }
+.tag-economic    { background: var(--green);  color: black; }
+.tag-health      { background: #8957e5;       color: white; }
+.tag-environment { background: #1f6feb;       color: white; }
+
+.news-title {
+    flex: 1;
+    font-size: 13px;
+}
+
+.news-loc,
+.news-time {
+    color: var(--gray);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+@media (max-width: 1024px) {
+    .cards-grid  { grid-template-columns: repeat(2, 1fr); }
+    .charts-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+    .cards-grid  { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    #map         { height: 280px; }
+    .section-top { flex-direction: column; gap: 10px; }
+}
+
+/* ================================
+   SCROLLBAR
+================================ */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { 
+    background: var(--border); 
+    border-radius: 3px; 
+}
